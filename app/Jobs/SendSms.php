@@ -2,11 +2,14 @@
 
 namespace App\Jobs;
 
+use App\Sdks\SmsSdk;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Log\Logger;
 
 class SendSms implements ShouldQueue
 {
@@ -51,5 +54,16 @@ class SendSms implements ShouldQueue
         }
 
         $this->send_message();
+    }
+
+     public function send_message()
+    {
+        $sdk  = new SmsSdk();
+        if(env('SMS_DRIVER') == 'log'){
+            Logger("==== SMS ====: {$this->text}");
+            return true;
+        }
+
+        return $sdk->send($this->to, $this->text);
     }
 }
