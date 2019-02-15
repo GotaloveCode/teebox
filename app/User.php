@@ -19,8 +19,8 @@ class User extends Authenticatable implements JWTSubject,MustVerifyEmail
      */
 //    'first_name', 'last_name', 'other_name',
     protected $fillable = [
-        'name','email', 'password', 'phone', 'signup_platform',
-        'email_verified_at', 'phone_verified_at'
+        'first_name','other_names','email', 'password', 'phone', 'signup_platform',
+        'email_verified_at', 'phone_verified_at','photo_url'
     ];
 
     /**
@@ -33,7 +33,7 @@ class User extends Authenticatable implements JWTSubject,MustVerifyEmail
     ];
 
     public function clubs(){
-        return $this->belongsToMany('App/Club');
+        return $this->belongsToMany(Club::Class)->withPivot('user_id','club_id','member_no');
     }
 
     public function games(){
@@ -67,6 +67,45 @@ class User extends Authenticatable implements JWTSubject,MustVerifyEmail
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    /**
+     * Set the user's first name.
+     *
+     * @param  string  $value
+     * @return void
+     */
+    public function setFirstNameAttributes($value){
+        $this->attributes['first_name'] = ucfirst($value);
+    }
+    /**
+     * Set the user's other names.
+     *
+     * @param  string  $value
+     * @return void
+     */
+    public function setOtherNameAttributes($value){
+        $this->attributes['other_names'] = ucwords($value);
+    }
+
+    /**
+     * Get the user's full name.
+     *
+     * @return string
+     */
+    public function getFullNameAttribute()
+    {
+        return "{$this->first_name} {$this->other_names}";
+    }
+
+    /**
+     * Encode phone number before saving
+     * @param $value
+     */
+    public function setPhoneAttribute($value)
+    {
+        // only mutate if $value is not null
+        $this->attributes['phone'] = !!$value ? phone($value, ['KE'], 'E164') : null;
     }
 
 }

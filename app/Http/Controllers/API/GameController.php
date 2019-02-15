@@ -20,7 +20,9 @@ class GameController extends BaseController
      */
     public function index()
     {
-        //
+        $user = Auth::user();
+        $games = $user->games()->get();
+        return response()->json(['games' => $games],200);
     }
 
 
@@ -50,6 +52,8 @@ class GameController extends BaseController
 
         $user = auth()->user();
 
+        // #TODO Payments first
+
         $game->user()->attach($user->id);
 
         return response()->json(['message' => 'Booking done successfully']);
@@ -70,52 +74,27 @@ class GameController extends BaseController
         if($game->user()->first()->id != $user->id){
             return response()->json(['status' => 'error','message' => 'The invite can only be sent by the game creator'],422);
         }
-    }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
+        $players_array [] = $game->user()->pluck('ids');
+        if(!$players_array.contains($request->user_id)){
+            $message = "Dear Customer, you have been invited for a golf game by {$user->first_name}, {$user->phone} at {$game->start}";
+            dispatch(new SendSMS($phone, $message));
+        }
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
 
     public function update(Request $request, $id)
     {
         $game = Game::find($id);
         if ($game) {
             $game->start = $request->input('start');
+            $game->end = $request->input('end');
+            $game->game_type = $request->input('game_type');
             $game->save();
             return response()->json(['message'=>'Game updated successfully']);
         }
         return $this->response->errorNotFound();
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
     
     public function getBooked(Request $request, $id)
     {

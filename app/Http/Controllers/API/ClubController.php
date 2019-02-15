@@ -17,8 +17,9 @@ class ClubController extends BaseController
   
     public function index()
     {
-        $clubs = Club::all();
-        return $this->collection($clubs, new ClubTransformer());
+        $clubs = Club::with('rates')->get();
+        return $clubs;
+        // return $this->collection($clubs, new ClubTransformer());
     }
 
     public function options()
@@ -27,9 +28,26 @@ class ClubController extends BaseController
     }
 
 
-    public function store(ClubRequest $request)
+    public function store(Request $request)
     {
-        if (Club::Create($request->all())) {
+        $this->validate($request, [
+            'name' => "required|unique:clubs,name",
+            'email' => "email",
+            'phone' => "required|phone:KE",
+        ]);
+        $club = Club::Create($request->only([
+            'name','email','phone','website',
+            'postal_address', 'physical_address','latlong' 
+        ]));
+        $club->rates()->create([
+            'is_member' => $request->input('is_member')[0],
+            'amount' => $request->input('amount')[0]
+        ]);
+        $club->rates()->create([
+            'is_member' => $request->input('is_member')[1],
+            'amount' => $request->input('amount')[1]
+        ]);
+        if ($club->rates()->count() == 2) {
             return $this->response->created();
         }
 

@@ -2,16 +2,26 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Code;
+use App\Jobs\SendSMS;
+use App\Mail\SendVerification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Transformers\UserWithTokenTransformer;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use App\User;
+use Google_Client;
 
 class AuthController extends BaseController
 {
     public function register(Request $request)
     {
         $this->validate($request, [
-            'email' => 'required|email',
-            'password' => 'required|min:6',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6|confirmed',
             'signup' => 'required|in:IOS,Android'
         ]);
 
@@ -23,7 +33,10 @@ class AuthController extends BaseController
             if(!$user->email_verified_at){
                 $this->generateCodenSendMail($user);
             }
-            return $this->item($user, new UserWithTokenTransformer);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'An email has been sent to you for account verification'
+            ], 200);
         }
 
         $user = User::create([
@@ -36,8 +49,10 @@ class AuthController extends BaseController
 
         $this->generateCodenSendMail($user);
 
-
-        return $this->item($user, new UserWithTokenTransformer);
+        return response()->json([
+                'status' => 'success',
+                'message' => 'An email has been sent to you for account verification'
+            ], 200);
     }
 
     private function generateCodenSendMail($user){
@@ -60,6 +75,10 @@ class AuthController extends BaseController
 
     public function login(Request $request)
     {
+        $this->validate($request, [
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
 
         $credentials = $request->only('email', 'password');
 
@@ -69,7 +88,7 @@ class AuthController extends BaseController
 
         $user = User::where('email',$request->input('email'))->first();
 
-        return $this->item($user, new UserWithTokenTransformer);
+        return $this->item($user,new UserWithTokenTransformer);
 
     }
 
@@ -146,7 +165,9 @@ class AuthController extends BaseController
     public function activatePhone(Request $request)
     {
         $this->validate($request, [
-            'code' => 'required|min:6|exists:codes,code_phone'
+            'code' => 'required|min:6|exists:codes,code_phone',
+            'first_name' => "required|title",
+            'other_names' => "required|title",
         ]);
 
         $user = auth()->user();
@@ -160,6 +181,10 @@ class AuthController extends BaseController
             $user->email_verified_at = now();
 
             $user->phone_verified_at = now();
+
+            $user->first_name = $request->input('first_name');
+             
+            $user->other_names = $request->input('other_names');
 
             $user->save();
 
@@ -177,7 +202,7 @@ class AuthController extends BaseController
     public function getPhoneCode(Request $request)
     {
         $this->validate($request, [
-            'phone' => 'required|numeric:10'
+            'phone' => "required|phone:KE",
         ]);
 
         $phone = $request->input('phone');
@@ -246,7 +271,9 @@ class AuthController extends BaseController
 
         Log::info("Phone ".$phone." Code ".$phoneCode);
 
-        $user->notify(new PhoneVerificationCode($phoneCode));
+        $message = "Dear Customer, your phone verification code is {$phoneCode}";
+
+        dispatch(new SendSms($phone, $message));
 
         return response()->json([
             'status' => 'success',
@@ -254,12 +281,6 @@ class AuthController extends BaseController
         ], 200);
 
     }
-
-
-
-
-
-
 
 }
 

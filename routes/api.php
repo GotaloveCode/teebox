@@ -16,29 +16,44 @@ $api = app('Dingo\Api\Routing\Router');
 
 $api->version('v1', ['middleware' => 'cors'], function ($api) {
 
-    $api->get('club/options', 'App\Http\Controllers\API\ClubController@options');
-
     $api->post('register', 'App\Http\Controllers\API\AuthController@register');
 
     $api->post('login', 'App\Http\Controllers\API\AuthController@login');
 
     $api->post('auth/google', 'App\Http\Controllers\API\AuthController@authGoogle');
 
+
+    $api->group(['prefix' => 'auth'], function ($api) {
+        $api->post('register', 'App\Http\Controllers\API\AuthController@register');
+
+        $api->post('login', 'App\Http\Controllers\API\AuthController@login');
+
+        $api->post('google', 'App\Http\Controllers\API\AuthController@authGoogle');
+
+    });
+
+    Route::middleware('prefix:auth')->get('/user', function (Request $request) {
+        return $request->user();
+    });
+
+    $api->get('club/options', 'App\Http\Controllers\API\ClubController@options');
+
     $api->group(['middleware' => 'api.auth'], function ($api) {
 
-        $api->post('auth/logout', 'App\Http\Controllers\API\AuthController@logout');
+        $api->group(['prefix' => 'auth'], function ($api) {
 
-        $api->post('auth/getPhoneCode', 'App\Http\Controllers\API\AuthController@getOTP');
+            $api->post('logout', 'App\Http\Controllers\API\AuthController@logout');
 
-        $api->post('auth/activate/Phone', 'App\Http\Controllers\API\AuthController@activatePhone');
-
-        $api->post('auth/activate/email', 'App\Http\Controllers\API\AuthController@activateEmail');
-
+            $api->post('getPhoneCode', 'App\Http\Controllers\API\AuthController@getOTP');
+    
+            $api->post('activate/Phone', 'App\Http\Controllers\API\AuthController@activatePhone');
+    
+            $api->post('activate/email', 'App\Http\Controllers\API\AuthController@activateEmail');
+    
+        });
         $api->get('booking/{id}', 'App\Http\Controllers\API\BookingController@getBooked')->where('id', '[0-9]+');
 
         $api->post('booking', 'App\Http\Controllers\API\BookingController@create');
     });
-});
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+
 });

@@ -10,8 +10,8 @@ class Club extends Model
         'name', 'email', 'phone', 'website',
         'postal_address', 'physical_address','latlong'
     ];
-    public function members(){
-        return $this->belongsToMany('App/Club');
+    public function users(){
+        return $this->belongsToMany(User::Class)->withPivot('user_id','member_no');
     }
 
     public function games(){
