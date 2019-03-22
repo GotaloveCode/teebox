@@ -10,9 +10,14 @@ use App\Http\Requests\ClubRequest;
 
 class ClubController extends BaseController
 {
+    protected $user;
     public function __construct()
     {
         $this->middleware(['auth', 'verified']);
+        $this->middleware(function ($request, $next) {
+            $this->user= auth()->user();
+            return $next($request);
+        });
     }
   
     public function index()
@@ -24,7 +29,8 @@ class ClubController extends BaseController
 
     public function options()
     {
-        return Club::select('id','name')->orderby('name','asc')->get();
+        $clubIds = $this->user->clubs()->pluck('club_id');
+        return Club::whereNotIn('id',$clubIds)->select('id','name')->orderby('name','asc')->get();
     }
 
 
@@ -50,7 +56,6 @@ class ClubController extends BaseController
         if ($club->rates()->count() == 2) {
             return $this->response->created();
         }
-
         return $this->response->errorBadRequest();
     }
 
@@ -68,7 +73,7 @@ class ClubController extends BaseController
 
     public function update(ClubRequest $request, $id)
     {
-         $club = Club::find($id);
+        $club = Club::find($id);
         if ($club) {
             $club->name = $request->input('name');
             $club->save();

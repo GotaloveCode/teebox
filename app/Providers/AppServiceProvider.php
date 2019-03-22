@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Dingo\Api\Provider\DingoServiceProvider;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -21,16 +22,6 @@ class AppServiceProvider extends ServiceProvider
 //        Validator::extend('phone', function($attribute, $value, $parameters, $validator) {
 //            return preg_match("/^0[1-9][0-9][ ]?[0-9]{7}$/", $value);
 //        });
-
-        app('Dingo\Api\Exception\Handler')->register(function (UnauthorizedHttpException $exception) {
-            return Response::make([
-                'status'=>'error',
-                'error' => [
-                    'code' => 'input_invalid',
-                    'message' => $exception->getMessage()
-                ]
-            ], 401);
-        });
     }
 
     /**

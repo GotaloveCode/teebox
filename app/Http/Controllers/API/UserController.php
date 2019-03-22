@@ -11,14 +11,21 @@ class UserController extends Controller
 {
      public function registerClub(Request $request){
          $this->validate($request, [
-             'club_id' => "required|exists:clubs,id",
-             'user_id' => "required|exists:users,id",
-             ]);
-        $user = User::WhereId($request->user_id);
+             'member_no' => "required",
+             'club_id' => "required|exists:clubs,id"
+         ]);
 
-        $user->clubs()->attach($request->club_id);
+        $user = auth()->user();
 
-        return response()->json(['message' => $user->name.' club registration successful']);
+        $exists = $user->clubs()->where('club_id',$request->club_id)->first();
+
+        if($exists){
+            return response()->json(['message' => $user->first_name.' already registered in '.$exists->name],422);
+        }
+
+        $user->clubs()->attach($request->club_id,['member_no' => $request->member_no]);
+
+        return response()->json(['message' => $user->first_name.' club registration successful']);
     }
 
     

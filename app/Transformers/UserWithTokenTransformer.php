@@ -48,7 +48,6 @@ class UserWithTokenTransformer extends TransformerAbstract
             'phone' => $user->phone,
             'verified_email' => $verified_email,
             'verified_phone' => $verified_phone,
-            'memberships' => $user->clubs()->get(),
             'token' => $token
         ];
     }

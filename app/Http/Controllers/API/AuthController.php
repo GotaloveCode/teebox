@@ -20,6 +20,8 @@ class AuthController extends BaseController
     public function register(Request $request)
     {
         $this->validate($request, [
+           'firstname' => 'required',
+            'othernames' => 'required',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed',
             'signup' => 'required|in:IOS,Android'
@@ -41,6 +43,8 @@ class AuthController extends BaseController
 
         $user = User::create([
             'email' => $request->input('email'),
+            'first_name' => $request->input('firstname'),
+            'other_names' => $request->input('othernames'),
             'password' => bcrypt($request->input('password')),
             'signup_platform'  => $platform
         ]);
@@ -49,8 +53,11 @@ class AuthController extends BaseController
 
         $this->generateCodenSendMail($user);
 
+        $token = JWTAuth::fromUser($user);
+
         return response()->json([
                 'status' => 'success',
+                'token' => $token,
                 'message' => 'An email has been sent to you for account verification'
             ], 200);
     }
@@ -68,9 +75,11 @@ class AuthController extends BaseController
             $user->code()->create(['email' => $user->email,'code_email' => $email_code]);
         }
 
-        Log::info("email ". $user->email. " and code: ".$email_code);
-
-        Mail::to($user)->queue(new SendVerification($email_code));
+        if(config('app.env') == "local"){
+            Log::info("email ". $user->email. " and code: ".$email_code);
+        }else{
+            Mail::to($user)->queue(new SendVerification($email_code));
+        }
     }
 
     public function login(Request $request)
@@ -148,14 +157,12 @@ class AuthController extends BaseController
         $this->validate($request, [
             'code' => 'required|min:6|exists:codes,code_email'
         ]);
-
         $user = auth()->user();
 
         if($user->code->code_email == $request->input('code')){
             $user->email_verified_at = now();
             $user->save();
-
-            return response()->json(['message' => 'Email '.$user->email .' verified successfully']);
+            return response()->json(['message' => 'Email '.$user->email .' verified successfully','user' => $user]);
         }
 
         return $this->response->errorNotFound();

@@ -7,6 +7,7 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Game;
 
 class User extends Authenticatable implements JWTSubject,MustVerifyEmail
 {
@@ -37,7 +38,7 @@ class User extends Authenticatable implements JWTSubject,MustVerifyEmail
     }
 
     public function games(){
-        return $this->belongsToMany('App/Games');
+        return $this->belongsToMany(Game::class);
     }
 
     public function invites(){
@@ -106,6 +107,15 @@ class User extends Authenticatable implements JWTSubject,MustVerifyEmail
     {
         // only mutate if $value is not null
         $this->attributes['phone'] = !!$value ? phone($value, ['KE'], 'E164') : null;
+    }
+
+     /**
+     * @param $email
+     * @return User|null
+     */
+    public static function getFromEmail($email)
+    {
+        return self::query()->whereEmail($email)->first();
     }
 
 }

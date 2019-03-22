@@ -18,7 +18,7 @@ $factory->define(App\User::class, function (Faker $faker) {
         'first_name' => $faker->name,
         'other_names' => $faker->name,
         'email' => $faker->unique()->safeEmail,
-        'phone' => $faker->phoneNumber,
+        'phone' => "+254". (string)(random_int(700000000,799999999)),
         'email_verified_at' => now(),
         'signup_platform' => 'Web',
         'password' => bcrypt('secret'),//'$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm', // secret
