@@ -9,11 +9,11 @@ class Game extends Model
     protected $fillable = ['type','start','end','club_id'];
 
     public function players(){
-        return $this->belongsToMany('App/User','user_id');
+        return $this->belongsToMany(User::class);
     }
 
     public function club(){
-        return $this->belongsTo('App/Club');
+        return $this->belongsTo(Club::class);
     }
 
     public function invites()
