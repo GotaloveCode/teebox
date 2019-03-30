@@ -18,7 +18,8 @@ class ClubTransformer extends TransformerAbstract
             'phone' => $club->phone,
             'postal_address' => $club->postal_address,
             'physical_address' => $club->physical_address,
-            'latlong' => $club->latlong
+            'latlong' => $club->latlong,
+            'photo_url' => $club->photo_url
         ];
     }
 }

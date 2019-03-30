@@ -22,6 +22,7 @@ class CreateClubsTable extends Migration
             $table->string('latlong')->nullable();
             $table->string('physical_address')->nullable();
             $table->string('postal_address')->nullable();
+            $table->string('photo_url')->nullable(); 
             $table->timestamps();
         });
     }
