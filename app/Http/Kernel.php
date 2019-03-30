@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use App\Http\Middleware\GameCreator;
 
 class Kernel extends HttpKernel
 {
@@ -62,7 +63,8 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'jwt.auth' => \Tymon\JWTAuth\Middleware\GetUserFromToken::class,
         'jwt.refresh' => \Tymon\JWTAuth\Middleware\RefreshToken::class,
-        'cors' => \Barryvdh\Cors\HandleCors::class
+        'cors' => \Barryvdh\Cors\HandleCors::class,
+        'game.creator' => GameCreator::class,
         ];
 
     /**
