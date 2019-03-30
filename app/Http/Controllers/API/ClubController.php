@@ -27,10 +27,15 @@ class ClubController extends BaseController
         // return $this->collection($clubs, new ClubTransformer());
     }
 
-    public function options()
+    public function user_options()
     {
         $clubIds = $this->user->clubs()->pluck('club_id');
         return Club::whereNotIn('id',$clubIds)->select('id','name')->orderby('name','asc')->get();
+    }
+
+    public function options()
+    {
+        return Club::select('id','name')->orderby('name','asc')->get();
     }
 
 
