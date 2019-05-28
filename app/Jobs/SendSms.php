@@ -48,8 +48,8 @@ class SendSms implements ShouldQueue
      */
     public function handle()
     {
-        if(!env('APP_NOTIFY')){
-            Log::info("SMS ==> ", ["to" => $this->to, "message" => $this->text]);
+        if(!config('sms.notify')){
+            Log::info("SMS ==>", ["to" => $this->to, "message" => $this->text]);
             return;
         }
 
@@ -59,7 +59,7 @@ class SendSms implements ShouldQueue
      public function send_message()
     {
         $sdk  = new SmsSdk();
-        if(env('SMS_DRIVER') == 'log'){
+        if(config('sms.driver') == 'log'){
             Logger("==== SMS ====: {$this->text}");
             return true;
         }

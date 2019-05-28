@@ -9,6 +9,6 @@ $factory->define(App\Club::class, function (Faker $faker) {
         'phone' => $faker->phoneNumber,
         'physical_address' => $faker->address,
         'postal_address' => $faker->postcode,
-        'latlong' => $faker->latitude.','.$faker->longitude,
+        'latlong' => $faker->latitude.','.$faker->longitude
     ];
 });

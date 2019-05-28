@@ -18,6 +18,8 @@ class CreateGamesTable extends Migration
             $table->string('type')->default('9 hole');
             $table->dateTime('start');
             $table->dateTime('end');
+            $table->string('account');
+            $table->tinyInteger('active')->default(0);
             $table->integer('club_id')->unsigned()->index();
             $table->foreign('club_id')->references('id')->on('clubs');
             $table->timestamps();

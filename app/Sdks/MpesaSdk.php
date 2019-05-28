@@ -2,8 +2,6 @@
 
 namespace App\Sdks;
 
-use App\Libs\ProcessFunds;
-use App\Models\Withdrawal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Safaricom\Mpesa\Mpesa;
@@ -43,11 +41,11 @@ class MpesaSdk
         return array_get($this->config, $key, $default);
     }
 
-    public function stk_push($phone, $amount, $ref, $description, $type)
+    public function stk_push($phone, $amount, $ref, $description)
     {
         $phone = encode_phone_number($phone);
         $mpesa = new Mpesa();
-        $callback = url("api/ipn/stk/{$type}/{$ref}");
+        $callback = url("api/ipn/stk/{$ref}");
         $shortcode = $this->getConfig('shortcode');
         $passkey = $this->getConfig('lipa_na_mpesa_passkey');
         $stkPushSimulation = $mpesa->STKPushSimulation(
@@ -304,8 +302,8 @@ class MpesaSdk
 
             $return = [
                 'amount' => $meta[0]['Value'],
-                'trx_no' => $meta[1]['Value'],
-                'ref_no' => time(),
+                'transaction_number' => $meta[1]['Value'],
+                'account' => time(),
                 'source' => $meta[4]['Value'],
                 'date_paid' => carbon($meta[3]['Value'])
             ];
@@ -323,47 +321,19 @@ class MpesaSdk
     {
         try {
             $bill_ref = $payload['BillRefNumber'];
-            $billable = get_payable_from_ref($bill_ref);
 
             $name = array_get($payload, 'FirstName') . " " .
                 array_get($payload, 'MiddleName') . " "
                 . array_get($payload, 'LastName');
 
             return [
-                'rct_no' => $payload['TransID'],
-                'trx_date' => carbon($payload['TransTime']),
+                'transaction_number' => $payload['TransID'],
+                'transaction_date' => carbon($payload['TransTime']),
                 'amount' => $payload['TransAmount'],
-                'source' => $payload['MSISDN'],
-                'ref_no' => $bill_ref,
-                'customer' => $name,
-                'type' => $billable ? $billable->getBillType() : 'unknown'
+                'phone' => $payload['MSISDN'],
+                'account' => $bill_ref,
+                'name' => $name
             ];
-        } catch (\Exception $e) {
-            report($e);
-            return false;
-        }
-    }
-
-    public static function process_b2c_callback($payload)
-    {
-        try {
-            $conversation_id = $payload["Result"]["ConversationID"];
-            $result_code = $payload["Result"]["ResultCode"];
-            $transaction_id = $payload["Result"]["TransactionID"];
-
-            $withdrawal = Withdrawal::get_by_conversation_id($conversation_id);
-
-            if (!$withdrawal)
-                return false;
-
-            if ($result_code === 0) {
-                $withdrawal->process_successful_withdrawal($transaction_id);
-            } else {
-                $withdrawal->process_failed_withdrawal($transaction_id, $payload['Result']['ResultDesc']);
-            }
-
-            return $withdrawal;
-
         } catch (\Exception $e) {
             report($e);
             return false;
@@ -393,7 +363,7 @@ class MpesaSdk
         $ips  = json_encode($request->ips());
         Log::info("Validating ips => {$ips}", []);
 
-        if(env('APP_ENV') == 'local')
+        if(config('app.env') == 'local')
             return true;
 
         return in_array($request->ip(), $this->whitelist);

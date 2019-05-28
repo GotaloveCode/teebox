@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Game;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,13 +17,11 @@ class GameCreator
      */
     public function handle($request, Closure $next)
     {
-        $game = $request->route('id');
+        $game = $request->route('game');
         $user = Auth::user();
-
-        if($game->created_by == $user->id){
+        if($game->players()->first()->id == $user->id){
             return $next($request);
         }
-
-        return abort(403, 'Unauthorized');
+        return abort(403, 'Only the creator of this game may access this');
     }
 }

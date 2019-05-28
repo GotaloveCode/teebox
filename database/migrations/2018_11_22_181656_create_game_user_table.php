@@ -19,6 +19,7 @@ class CreateGameUserTable extends Migration
             $table->foreign('user_id')->references('id')->on('users');
             $table->integer('game_id')->unsigned()->index();
             $table->foreign('game_id')->references('id')->on('games');
+            $table->string('account');
             $table->boolean('paid')->default(false);
             $table->timestamps();
         });

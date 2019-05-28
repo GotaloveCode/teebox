@@ -6,10 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Game extends Model
 {
-    protected $fillable = ['type','start','end','club_id'];
+    protected $casts = ['active'=>'boolean'];
+
+    protected $dates = ['start','end'];
+
+    protected $fillable = ['type','start','end','club_id','account'];
 
     public function players(){
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class)->withTimeStamps();
     }
 
     public function club(){
@@ -21,12 +25,33 @@ class Game extends Model
         return $this->hasMany(GameInvite::class, 'game_id');
     }
 
+    public function scopeActive($query)
+    {
+        return $query->where('active', 1);
+    }
+
+    public function scopeConfirmedPlayers($query)
+    {
+        return $query->players()->where('paid', 1);
+    }
+
+    public function remainingPlayers()
+    {
+        return 4 - $this->players()->count();
+    }
+
+//    public function scopePayment($query,$status="paid")
+//    {
+//        $status == 1 ? "paid" : "unpaid";
+//        return $query->where('paid', $status);
+//    }
+
      /**
      * @param User $user
-     * @param $loan_limit
+     * @param $game_id
      * @return Model|\Illuminate\Database\Query\Builder|null|object
      */
-    public function add_member(User $user, $game_id = null)
+    public function add_invite(User $user, $game_id)
     {
         # first check if user is already a member of business
         $member =  $this->members()->newQuery()->where('users.id', $user->id)->first();

@@ -22,6 +22,7 @@ class CreateClubUserTable extends Migration
             $table->foreign('club_id')->references('id')->on('clubs');
             $table->index(['user_id', 'club_id']);
             $table->timestamps();
+//            $table->unique(['user_id','club_id']);
         });
     }
 

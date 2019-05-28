@@ -90,3 +90,23 @@ if (!function_exists('encode_phone_number')){
         return $number;
     }
 }
+
+if (!function_exists('carbon'))
+{
+    /**
+     * @param null $date_time
+     * @param null $format
+     * @return \Carbon\Carbon
+     */
+    function carbon($date_time  = null, $format =  null)
+    {
+        if(!$date_time)
+            return \Carbon\Carbon::now();
+
+        if ($date_time && !$format)
+            return \Carbon\Carbon::parse($date_time);
+
+        return \Carbon\Carbon::createFromFormat($format,$date_time);
+    }
+}
+

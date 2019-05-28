@@ -27,6 +27,13 @@ class ClubController extends BaseController
         // return $this->collection($clubs, new ClubTransformer());
     }
 
+    public function memberships()
+    {
+        $clubs = $this->user->clubs()->with('rates')->get();
+        return $clubs;
+        // return $this->collection($clubs, new ClubTransformer());
+    }
+
     public function user_options()
     {
         $clubIds = $this->user->clubs()->pluck('club_id');

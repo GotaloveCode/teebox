@@ -6,9 +6,12 @@
  */
 
 require('./bootstrap');
-
-window.Vue = require('vue');
-
+import Argon from "./plugins/argon-kit";
+// window.Vue = require('vue');
+import Vue from "vue";
+Vue.use(Argon);
+Vue.component('login', require('./views/Login.vue'));
+// require('./views/Components');
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
@@ -17,7 +20,7 @@ window.Vue = require('vue');
  * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
  */
 
-Vue.component('example-component', require('./components/ExampleComponent.vue'));
+
 
 // const files = require.context('./', true, /\.vue$/i)
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key)))

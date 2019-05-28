@@ -7,7 +7,7 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use App\Game;
+
 
 class User extends Authenticatable implements JWTSubject,MustVerifyEmail
 {
@@ -42,12 +42,12 @@ class User extends Authenticatable implements JWTSubject,MustVerifyEmail
     }
 
     public function invites(){
-        return $this->hasMany('App/Invite');
+        return $this->hasMany('Invite');
     }
 
     public function code()
     {
-        return $this->hasOne('App\Code');
+        return $this->hasOne('Code');
     }
 
     /**
