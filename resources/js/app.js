@@ -6,11 +6,10 @@
  */
 
 require('./bootstrap');
-import Argon from "./plugins/argon-kit";
-// window.Vue = require('vue');
+
 import Vue from "vue";
-Vue.use(Argon);
-Vue.component('login', require('./views/Login.vue'));
+
+// Vue.component('login', require('./views/Login.vue'));
 // require('./views/Components');
 /**
  * The following block of code may be used to automatically register your

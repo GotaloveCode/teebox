@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use App\Game;
 use Carbon\Carbon;
 use App\Transformers\GameTransformer;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -41,7 +40,6 @@ class GameController extends BaseController
                     ->where('start','>=',$start)
                     ->where('end','<=',$end)
                     ->get();
-//        $games = $games->load('players');
         return response()->json([
             'games' => $games
         ]);

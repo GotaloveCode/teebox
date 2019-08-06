@@ -75,16 +75,6 @@
                             <span class="nav-link-inner--text">{{ __('Register') }}</span>
                         </a>
                     </li>
-                    <li class="nav-item d-none d-lg-block ml-lg-4">
-                        @auth
-                            <a href="https://www.creative-tim.com/product/vue-argon-design-system" target="_blank" rel="noopener" class="btn btn-neutral btn-icon">
-                            <span class="btn-inner--icon">
-                                <i class="fa fa-cloud-download mr-2"></i>
-                            </span>
-                                <span class="nav-link-inner--text">Download</span>
-                            </a>
-                        @endauth
-                    </li>
                 </ul>
             </div>
         </div>
