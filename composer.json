@@ -20,10 +20,10 @@
         "dingo/api": "^2.4.0",
         "fideloper/proxy": "^4.0",
         "google/apiclient": "^2.0",
-        "laravel/framework": "^5.8",
+        "laravel/framework": "^6.0",
         "laravel/tinker": "^1.0",
         "propaganistas/laravel-phone": "^4.0",
-        "spatie/laravel-permission": "^2.7",
+        "spatie/laravel-permission": "^3.3",
         "tymon/jwt-auth": "^1.0.0",
         "mitajunior/mpesa": "dev-master"
     },
